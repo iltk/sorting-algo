@@ -1,0 +1,60 @@
+A sort is stable if equal elements keep their original relative order after sorting.
+
+Say you have this list of names with scores:
+Bob   - 5
+Alice - 5
+Charlie - 3
+
+Both Bob and Alice have score 5. After sorting by score, a stable sort keeps Bob before Alice because Bob came first originally:
+Charlie - 3
+Bob     - 5   ← still before Alice
+Alice   - 5
+
+An unstable sort might give you:
+Charlie - 3
+Alice   - 5   ← flipped
+Bob     - 5
+
+That's it. Stable just means equal elements don't get reordered relative to each other.
+
+
+
+
+The core idea: a function that calls itself on a smaller version of the same problem.
+The confusion usually comes from trying to trace every single call in your head — you go three levels deep and lose track. Don't do that. Instead, recursion works on trust.
+The trust trick
+When you write a recursive function, you assume it already works for the smaller case. You don't trace it. You just ask two questions:
+
+What's the smallest possible input where I already know the answer without doing any work? → that's your base case.
+Assuming the function works for a smaller input, how do I use that to solve my current input? → that's the recursive step.
+
+That's the whole thing. The base case stops the recursion; the recursive step shrinks the problem toward the base case.
+Why the base case matters
+The base case is the "floor." Without it, the function keeps calling itself on smaller and smaller inputs forever (well — until the stack overflows). Every recursive path must eventually hit a base case. If you ever write a recursive function and it crashes with a stack overflow, 90% of the time it's because either:
+
+you forgot the base case, or
+your recursive call isn't actually getting closer to the base case.
+
+Concrete example — factorial
+5! = 5 × 4 × 3 × 2 × 1
+Notice that 5! = 5 × 4!. The problem contains a smaller version of itself. So:
+factorial(n):
+    if n == 0:  return 1        // base case: I know this answer outright
+    return n * factorial(n - 1) // trust that factorial(n-1) works
+When you read factorial(n - 1), do not trace it. Just trust it returns the right answer for n-1. Your only job is: given that smaller answer, how do I build my answer? Multiply by n. Done.
+The mental picture: a stack of plates
+Each call stacks on top of the previous one, frozen mid-way, waiting for the call below it to finish:
+factorial(3)  → needs 3 × factorial(2)
+  factorial(2)  → needs 2 × factorial(1)
+    factorial(1)  → needs 1 × factorial(0)
+      factorial(0)  → returns 1   ← base case, floor hit
+    returns 1 × 1 = 1
+  returns 2 × 1 = 2
+returns 3 × 2 = 6
+Calls pile up going down (each waiting), then the base case lets them resolve and "unwind" back up, each one now able to finish its multiplication.
+The recipe for writing any recursive function
+
+Identify the base case — the input so small you answer instantly, no recursion.
+Assume the function already works for a smaller input (trust it).
+Write the one step that combines the current piece with that smaller answer.
+Make sure the recursive call moves toward the base case.
